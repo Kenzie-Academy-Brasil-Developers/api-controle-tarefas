@@ -1,19 +1,47 @@
 import { Router } from "express"
 import { TaskControllers } from "../controllers/task.controllers"
+import { EnsureMiddleware } from "../middlewares/ensure.middleware"
+import { taksUpdateSchema, taskCreateSchemas } from "../schemas/task.schemas"
 
 export const taksRouter = Router()
 
+const ensure = new EnsureMiddleware()
+
 const taksControllers = new TaskControllers()
 
-taksRouter.post("/", taksControllers.create)
+taksRouter.post(
+    "/",
+    ensure.validateBody(taskCreateSchemas),
+    ensure.bodyCategoyIdExists,
+    taksControllers.create
+)
 
-taksRouter.get("/", taksControllers.findMany)
+taksRouter.get(
+    "/",
+    taksControllers.getTasks
+)
 
-taksRouter.get("/:id", taksControllers.findOne)
+taksRouter.use(
+    "/:id",
+    ensure.taskIdValid
+)
 
-taksRouter.patch("/:id", taksControllers.update)
+taksRouter.get(
+    "/:id",
+    taksControllers.getOneTask
+)
 
-taksRouter.delete("/:id", taksControllers.delete)
+taksRouter.patch(
+    "/:id",
+    ensure.validateBody(taksUpdateSchema),
+    ensure.bodyCategoyIdExists,
+    taksControllers.update
+)
+
+taksRouter.delete(
+    "/:id",
+    taksControllers.delete
+)
 
 
 
