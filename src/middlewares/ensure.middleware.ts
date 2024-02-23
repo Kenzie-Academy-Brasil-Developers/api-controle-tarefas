@@ -14,7 +14,7 @@ export class EnsureMiddleware {
             return next()
         }
     }
-
+    
     bodyCategoyIdExists = async (
         req: Request,
         res: Response,

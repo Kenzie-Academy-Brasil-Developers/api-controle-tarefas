@@ -15,7 +15,7 @@ export const taskCreateSchemas = taskSchemas
     category: true
 })
 .extend({ 
-    categoryId: z.number().positive().nullish() 
+    categoryId: z.number().positive().nullish()
 })
 
 export const taksUpdateSchema = taskCreateSchemas.partial()

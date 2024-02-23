@@ -1,15 +1,19 @@
 import "express-async-errors"
+import "reflect-metadata"
 import express, { json } from "express"
 import helmet from "helmet"
 import { taksRouter } from "./routes/taks.router"
-import { categoryRouter } from "./routes/category.routes"
+import { categoryRouter } from "./routes/category.router"
 import { HandleErrors } from "./middlewares/handleErrors.middlewares"
+import { userRouter } from "./routes/user.router"
 
 export const app = express()
 
 app.use(helmet())
 
 app.use(json())
+
+app.use("/users", userRouter)
 
 app.use("/tasks", taksRouter)
 
