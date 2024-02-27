@@ -6,15 +6,19 @@ export class TaskControllers {
     private taksServices: TaskServices = new TaskServices()
 
     create = async (req: Request, res: Response): Promise<Response> => {
-        const response = await this.taksServices.create(req.body)
+        const { id } = res.locals.decode
+
+        const response = await this.taksServices.create(req.body, id)
 
         return res.status(201).json(response)
     }
 
-    getTasks = async (req: Request, res: Response): Promise<Response> => {
-        const nameCategory = req.query.category as string | undefined 
+    getTasks = async ({query}: Request, res: Response): Promise<Response> => {
+        const userId = res.locals.decode.id
 
-        const response = await this.taksServices.getTasks(nameCategory)
+        const nameCategory = query.category? String(query.category) : undefined
+
+        const response = await this.taksServices.getTasks(userId,nameCategory)
 
         return res.status(200).json(response)
     }

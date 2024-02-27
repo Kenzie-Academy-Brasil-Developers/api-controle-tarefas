@@ -1,27 +1,38 @@
 import { prisma } from "../database/prisma";
-import { TTaksSchema, TTaskCreateSchema, TTaskUpdateSchema } from "../interface/task.interface";
-import { taskSchemas } from "../schemas/task.schemas";
+import { TTaksSchema, TTaskCreateSchema, TTaskReturnCategory, TTaskUpdateSchema } from "../interface/task.interface";
+import { taskReturnSchemas, taskSchemas } from "../schemas/task.schemas";
 
 export class TaskServices {
 
-    create = async (body: TTaskCreateSchema): Promise<TTaksSchema> => {
+    create = async (body: TTaskCreateSchema, userId: number): Promise<TTaksSchema> => {
+        const newTask = { ...body, userId }
 
-        const newTask = await prisma.task.create({
-            data: body,
+        const data = await prisma.task.create({
+            data: newTask,
             include: { category: true }
         })
 
-        return taskSchemas.parse(newTask)
+        return taskSchemas.parse(data)
     }
 
-    getTasks = async (query?: string): Promise<Array<TTaksSchema>> => {
+    getTasks = async (userId: number, query?: string): Promise<Array<TTaskReturnCategory>> => {
 
-        const allTasks = await prisma.task.findMany({
-            where: { category: { name: query } },
-            include: { category: true }
-        })
+        let prismaQuery: any = {
+            include: { query: true },
+            where: { userId },
+        }
 
-        return taskSchemas.array().parse(allTasks)
+        if (query) {
+            const whereClause = { name: { equals: query, mode: "insensitive" } };
+            prismaQuery = {
+                ...prismaQuery,
+                where: { ...prismaQuery.where, query: whereClause },
+            };
+        }
+
+        const allTasks = await prisma.task.findMany(prismaQuery)
+
+        return taskReturnSchemas.array().parse(allTasks)
     }
 
     getOneTask = async (taskId: string): Promise<TTaksSchema> => {
@@ -42,7 +53,7 @@ export class TaskServices {
     }
 
     delete = async (taskId: string): Promise<void> => {
-        
+
         await prisma.task.delete({ where: { id: Number(taskId) } })
     }
 }

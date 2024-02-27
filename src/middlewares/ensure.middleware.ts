@@ -1,29 +1,51 @@
-import { NextFunction, Request, Response } from "express";
-import { AnyZodObject } from "zod";
-import { prisma } from "../database/prisma";
-import { AppError } from "../errors/appError";
+import { NextFunction, Request, Response } from "express"
+import { AnyZodObject } from "zod"
+import { prisma } from "../database/prisma"
+import { AppError } from "../errors/appError"
 
 export class EnsureMiddleware {
 
-    validateBody = (schema: AnyZodObject) => {
+    validateBody =
+        (schema: AnyZodObject) => {
+            return (
+                req: Request,
+                res: Response,
+                next: NextFunction): void => {
 
-        return (req: Request, res: Response, next: NextFunction): void => {
-            
-            req.body = schema.parse(req.body)
+                req.body = schema.parse(req.body)
 
+                return next()
+            }
+        }
+
+    emailIsUnique = async (
+        req: Request,
+        res: Response,
+        next: NextFunction) => {
+        const { email } = req.body
+
+        if (!email) { 
             return next()
         }
+
+        const foundUser = await prisma.user.findFirst({ where: { email } })
+
+        if (foundUser) {
+            throw new AppError(409, "This email is already registered")
+        }
+
+        return next()
     }
-    
+
     bodyCategoyIdExists = async (
         req: Request,
         res: Response,
         next: NextFunction
     ): Promise<void> => {
 
-        const {categoryId} = req.body
+        const { categoryId } = req.body
 
-        if(!categoryId){
+        if (!categoryId) {
             return next()
         }
 
@@ -34,7 +56,7 @@ export class EnsureMiddleware {
         if (!foundCategory) {
             throw new AppError(404, "Category not found")
         }
-        
+
         return next()
     }
 
@@ -54,7 +76,7 @@ export class EnsureMiddleware {
             throw new AppError(404, "Task not found")
         }
 
-        res.locals= {...res.locals, foundTask}
+        res.locals = { ...res.locals, foundTask }
 
         return next()
     }
@@ -75,7 +97,7 @@ export class EnsureMiddleware {
             throw new AppError(404, "Category not found")
         }
 
-        res.locals= {...res.locals, foundCategory}
+        res.locals = { ...res.locals, foundCategory }
 
         return next()
     }

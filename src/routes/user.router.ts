@@ -13,17 +13,18 @@ export const userRouter = Router()
 userRouter.post(
     "/",
     ensure.validateBody(userRegisterBodySchema),
-    (req, res) => userControllers.register(req, res)
+    ensure.emailIsUnique,
+    userControllers.register
 )
 
 userRouter.post(
     "/login",
     ensure.validateBody(userLoginBodySchema),
-    (req, res) => userControllers.login(req, res)
+    userControllers.login
 )
 
 userRouter.get(
     "/profile",
     VerifyToken.execute,
-    (req, res) => userControllers.getUser(req, res)
+    userControllers.getUser
 )
