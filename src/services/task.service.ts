@@ -1,10 +1,11 @@
-import { prisma } from "../database/prisma";
-import { TTaksSchema, TTaskCreateSchema, TTaskReturnCategory, TTaskUpdateSchema } from "../interface/task.interface";
-import { taskReturnSchemas, taskSchemas } from "../schemas/task.schemas";
+import { prisma } from "../database/prisma"
+import { TTaksSchema, TTaskCreateSchema, TTaskReturnCategory, TTaskUpdateSchema } from "../interface/task.interface"
+import { categoryReturnSchemas, taskSchemas } from "../schemas/task.schemas"
 
 export class TaskServices {
 
     create = async (body: TTaskCreateSchema, userId: number): Promise<TTaksSchema> => {
+        
         const newTask = { ...body, userId }
 
         const data = await prisma.task.create({
@@ -15,24 +16,26 @@ export class TaskServices {
         return taskSchemas.parse(data)
     }
 
-    getTasks = async (userId: number, query?: string): Promise<Array<TTaskReturnCategory>> => {
+    getTasks = async (userId: number, category?: string): Promise<Array<TTaskReturnCategory>> => {
 
         let prismaQuery: any = {
-            include: { query: true },
+            include: { category: true },
             where: { userId },
         }
 
-        if (query) {
-            const whereClause = { name: { equals: query, mode: "insensitive" } };
+        if (category) {
+
+            const whereClause = { name: { equals: category, mode: "insensitive" } }
+
             prismaQuery = {
                 ...prismaQuery,
-                where: { ...prismaQuery.where, query: whereClause },
-            };
+                where: { ...prismaQuery.where, category: whereClause },
+            }
         }
 
         const allTasks = await prisma.task.findMany(prismaQuery)
 
-        return taskReturnSchemas.array().parse(allTasks)
+        return categoryReturnSchemas.array().parse(allTasks)
     }
 
     getOneTask = async (taskId: string): Promise<TTaksSchema> => {

@@ -1,5 +1,5 @@
-import bcrypt from "bcrypt"
-import jwt, { sign } from "jsonwebtoken"
+import { hash, compare } from "bcryptjs"
+import  { sign } from "jsonwebtoken"
 import { TLoginReturn, TUserLoginBody, TUserRegisterBody, TUserReturn } from "../interface/user.interface"
 import { prisma } from "../database/prisma"
 import { userReturnSchema } from "../schemas/user.schamas"
@@ -9,7 +9,8 @@ import { AppError } from "../errors/appError"
 export class UserServices {
 
     register = async (body: TUserRegisterBody): Promise<TUserReturn> => {
-        const hashPassword = await bcrypt.hash(body.password, 10)
+        
+        const hashPassword = await hash(body.password, 10)
 
         const newUser: TUserRegisterBody = {
             ...body,
@@ -29,9 +30,9 @@ export class UserServices {
             throw new AppError(404, "User not exists")
         }
 
-        const compare = await bcrypt.compare(body.password, user.password)
+        const samePassword = await compare(body.password, user.password)
 
-        if (!compare) {
+        if (!samePassword) {
             throw new AppError(401, "Email and password doesn't match")
         }
 
@@ -53,6 +54,5 @@ export class UserServices {
 
         return userReturnSchema.parse(user)
     }
-
 }
 

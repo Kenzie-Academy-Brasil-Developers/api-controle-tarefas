@@ -16,6 +16,6 @@ export class VerifyToken{
 
         res.locals.decode = jwt.decode(token)
 
-        next()
+        return next()
     }
 }

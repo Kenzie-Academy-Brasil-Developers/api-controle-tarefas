@@ -1,8 +1,8 @@
-import { Router } from "express";
-import { UserControllers } from "../controllers/user.controllers";
-import { EnsureMiddleware } from "../middlewares/ensure.middleware";
-import { userLoginBodySchema, userRegisterBodySchema } from "../schemas/user.schamas";
-import { VerifyToken } from "../middlewares/verifyToken.midleware";
+import { Router } from "express"
+import { UserControllers } from "../controllers/user.controllers"
+import { EnsureMiddleware } from "../middlewares/ensure.middleware"
+import { userLoginBodySchema, userRegisterBodySchema } from "../schemas/user.schamas"
+import { VerifyToken } from "../middlewares/verifyToken.midleware"
 
 const ensure = new EnsureMiddleware()
 
