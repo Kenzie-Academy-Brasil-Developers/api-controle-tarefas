@@ -9,7 +9,7 @@
     "test": "dotenv -e .env.test -- vitest",
     "migrate:test": "dotenv -e .env.test -- npx prisma migrate dev",
     "build": "npx tsc",
-    "start": "node dist/server.ts",
+    "start": "node dist/server.js",
     "migrate:prod": "npx prisma migrate dev"
   },
   "keywords": [],
